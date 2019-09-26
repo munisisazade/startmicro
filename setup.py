@@ -19,7 +19,7 @@ setuptools.setup(
     scripts=['startmicro/script/start_micro.py'],
     install_requires=["PyInquirer", "prompt_toolkit", "virtualenv"],
     entry_points={'console_scripts': [
-        'microstart = startmicro.core.management:execute_from_command_line',
+        'microservice = startmicro.core.management:execute_from_command_line',
     ]},
     platforms=['any'],
     packages=setuptools.find_packages(),

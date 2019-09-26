@@ -24,6 +24,7 @@ class ManagementUtility(object):
         if self.prog_name == '__main__.py':
             self.prog_name = 'python -m startmicro'
         self.settings_exception = None
+        self.issue_url = "https://github.com/munisisazade/startmicro"
         self.argument_list = (
             ('-V', '--version', self.get_version),
             ('-l', '--log', self.get_logging),
@@ -120,7 +121,19 @@ class ManagementUtility(object):
                 self.check_file_exist()
                 cmd = Command(self.folder_name)
                 cmd.run()
-                sys.stdout.write("SUCCESS")
+                sys.stdout.write("\n")
+                sys.stdout.write(" Successfuly created {}\n".format(self.folder_name))
+                sys.stdout.write("\n")
+                sys.stdout.write(" Start microservice bellow commands :\n")
+                sys.stdout.write("\n")
+                sys.stdout.write("  cd {}\n".format(self.folder_name))
+                sys.stdout.write("\n")
+                sys.stdout.write("  source .venv/bin/activate\n")
+                sys.stdout.write("  pip install -r requirements.txt\n")
+                sys.stdout.write("  python run.py\n")
+                sys.stdout.write("\n")
+                sys.stdout.write("  If you have any problems, do not hesitate to file an issue:\n")
+                sys.stdout.write("    {}\n".format(self.issue_url))
             else:
                 name = self.folder_name
                 name = name.translate(str.maketrans('', '', string.ascii_letters + string.digits))
