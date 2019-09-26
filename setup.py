@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 version = __import__("startmicro").__version__
 
 setuptools.setup(
-    name="microstart",
+    name="microstarter",
     version=version,
     author="Munis Isazade",
     author_email="munisisazade@gmail.com",
@@ -19,7 +19,7 @@ setuptools.setup(
     scripts=['startmicro/script/start_micro.py'],
     install_requires=["PyInquirer", "prompt_toolkit", "virtualenv"],
     entry_points={'console_scripts': [
-        'microservice = startmicro.core.management:execute_from_command_line',
+        'microstarter = startmicro.core.management:execute_from_command_line',
     ]},
     platforms=['any'],
     packages=setuptools.find_packages(),
