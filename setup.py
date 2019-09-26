@@ -17,7 +17,10 @@ setuptools.setup(
     license='MIT',
     url="https://github.com/munisisazade/startmicro",
     scripts=['startmicro/script/start_micro.py'],
-    install_requires=["PyInquirer", "prompt_toolkit", "virtualenv"],
+    install_requires=["PyInquirer", "virtualenv"],
+    extras_require={
+        "prompt_toolkit": ["prompt_toolkit == 1.0.14"]
+    },
     entry_points={'console_scripts': [
         'microstarter = startmicro.core.management:execute_from_command_line',
     ]},

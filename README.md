@@ -5,8 +5,9 @@ Microservice simple Starter Flask example lightweight app
 # Getting Started
 
 Install microstarter
+Linux Installation
 ```bash
-pip install microstarter
+sudo pip3 install microstarter
 ```
 
 ### Usage example
