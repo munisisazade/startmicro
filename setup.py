@@ -13,7 +13,7 @@ setuptools.setup(
     author_email="munisisazade@gmail.com",
     description="Microservice simple Starter Flask example",
     long_description=long_description,
-    # long_description_content_type="text/markdown",
+    long_description_content_type="text/markdown",
     license='MIT',
     url="https://github.com/munisisazade/startmicro",
     scripts=['startmicro/script/start_micro.py'],
