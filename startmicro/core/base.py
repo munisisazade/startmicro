@@ -62,7 +62,7 @@ class Command(object):
 
     def write_file(self, path, filename, data):
         with open("{}{}{}".format(path, self.slash, filename), "w") as file:
-            file.write(data)
+            file.write(data.strip())
 
     def main_structure(self):
         os.makedirs(self.app)
