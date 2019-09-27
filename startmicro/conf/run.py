@@ -1,4 +1,4 @@
-run = """
+run_restful = """
 import os
 import traceback
 
@@ -44,5 +44,69 @@ def exceptions(e):
 
 if __name__ == '__main__':
     app.run(host=os.getenv('HOST'), port=os.getenv('PORT'))
+
+"""
+
+run_redis_pubsub = """
+import os
+from redisrpc import RedisRPC
+from app.api.producer import handler
+from dotenv import load_dotenv
+
+load_dotenv()  # load common environment
+load_dotenv(dotenv_path='config/{}.env'.format(os.getenv("APP_SETTINGS"))) # load configs
+
+# Listen `microservice` channels accept all messages from this channel
+rpc = RedisRPC("microservice")
+
+# Register your data handlers here
+rpc.register(handler, "handler")
+
+
+if __name__ == '__main__':
+    rpc.listen() # pubsub have no port
+
+"""
+
+run_rabbitmq = """
+import os
+import json
+import pika
+from app.api.producer import handler
+from dotenv import load_dotenv
+
+load_dotenv()  # load common environment
+load_dotenv(dotenv_path='config/{}.env'.format(os.getenv("APP_SETTINGS"))) # load configs
+
+RABBIT_USER = os.getenv('RABBIT_USER')
+RABBIT_PASSWORD = os.getenv('RABBIT_PASSWORD')
+RABBIT_HOST = os.getenv('RABBIT_HOST')
+RABBIT_PORT = os.getenv('RABBIT_PORT')
+
+
+print("Rabbitmq RPC server start")
+# Connect to channel
+credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials))
+channel = connection.channel()
+channel.queue_declare(queue='microservice', durable=True)
+
+
+# Data handler all requests
+def on_request(ch, method, props, body):
+    response = json.dumps(handler(body))
+
+    ch.basic_publish(exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id=props.correlation_id),
+                     body=response)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+
+# Accept from channel
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(on_request, queue='microservice')
+channel.start_consuming()
 
 """
