@@ -44,3 +44,59 @@ services:
       - .:/code
       
 """
+
+redis_dockerfile = """
+FROM redis:4.0.11
+
+ENV REDIS_PASSWORD {}
+
+CMD ["sh", "-c", "exec redis-server --requirepass \"$REDIS_PASSWORD\""]
+
+"""
+
+redis_docker_compose = """
+version: '3'
+
+services:
+
+  redis:
+    build:
+      context: .
+      dockerfile: redis.dockerfile
+    restart: "always"
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redisdb:/var/lib/redis
+    # env_file: .env # if have dotenv file
+     
+"""
+
+rabbit_docker_compose = """
+version: '3'
+
+services:
+  
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "localhost"
+    container_name: rabbit
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "localhost"
+    volumes:
+      - "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
+
+"""
+
+rabbit_enable_plugins = """
+[rabbitmq_management, rabbitmq_management_visualiser].
+"""

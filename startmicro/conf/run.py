@@ -70,43 +70,41 @@ if __name__ == '__main__':
 
 run_rabbitmq = """
 import os
-import json
 import pika
 from app.api.producer import handler
 from dotenv import load_dotenv
 
 load_dotenv()  # load common environment
-load_dotenv(dotenv_path='config/{}.env'.format(os.getenv("APP_SETTINGS"))) # load configs
+load_dotenv(dotenv_path='config/{}.env'.format(os.getenv("APP_SETTINGS")))  # load configs
 
 RABBIT_USER = os.getenv('RABBIT_USER')
 RABBIT_PASSWORD = os.getenv('RABBIT_PASSWORD')
 RABBIT_HOST = os.getenv('RABBIT_HOST')
 RABBIT_PORT = os.getenv('RABBIT_PORT')
 
-
-print("Rabbitmq RPC server start")
-# Connect to channel
 credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASSWORD)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host=RABBIT_HOST, port=RABBIT_PORT, credentials=credentials))
+
 channel = connection.channel()
-channel.queue_declare(queue='microservice', durable=True)
+
+channel.queue_declare(queue=os.getenv("RABBIT_QUEUE_NAME"))
 
 
-# Data handler all requests
 def on_request(ch, method, props, body):
-    response = json.dumps(handler(body))
+    response = handler(body.decode("utf-8"))
 
     ch.basic_publish(exchange='',
                      routing_key=props.reply_to,
                      properties=pika.BasicProperties(correlation_id=props.correlation_id),
-                     body=response)
+                     body=str(response))
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-# Accept from channel
 channel.basic_qos(prefetch_count=1)
-channel.basic_consume(on_request, queue='microservice')
+channel.basic_consume(queue=os.getenv("RABBIT_QUEUE_NAME"), on_message_callback=on_request)
+
+print("Rabbitmq RPC server start")
 channel.start_consuming()
 
 """

@@ -50,3 +50,10 @@ questions = [
     }
 ]
 
+redis_questions = [
+    {
+        'type': 'password',
+        'message': 'Enter Redis password: ',
+        'name': 'redis_pass'
+    }
+]

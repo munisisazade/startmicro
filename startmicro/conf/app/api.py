@@ -43,6 +43,7 @@ def handler(request):
 """
 
 producer_rabbitmq = """
+import json
 from app.utils import Success
 from app.utils.logger import log
 
