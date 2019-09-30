@@ -12,7 +12,7 @@ handler = rpc.send("handler", {'data': "Hello world"})  # send data to spesific 
 
 # response from server handlers
 print(handler)
-  
+
 """
 
 redis_credentials = """
@@ -21,7 +21,7 @@ REDIS_URI='redis://:{}@localhost:6379/0' # you can change this
 
 redis_required = """
 redis==3.3.8
-redispubsub==0.0.5
+redispubsub
 """
 
 rabbit_client = """

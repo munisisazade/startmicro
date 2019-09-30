@@ -5,14 +5,15 @@ from startmicro.conf.app.api import producer_restful, producer_redis, producer_r
 from startmicro.conf.app.app import app_init
 from startmicro.conf.run import run_restful, run_redis_pubsub, run_rabbitmq
 from startmicro.conf.readme import readme
-from startmicro.conf.docker import docker_compose, Dockerfile
+from startmicro.conf.docker import docker_compose, Dockerfile, redis_dockerfile, redis_docker_compose, \
+    rabbit_enable_plugins, rabbit_docker_compose
 from startmicro.conf.requirements import requirement_list
 from startmicro.conf.dotenv import env, dev_env, test_env, stage_env, prod_env
 from startmicro.conf.instance_py.config import config
 from startmicro.conf.exaples import redis_client, rabbit_client, redis_credentials, rabbitmq_credentials, \
     redis_required, rabbit_required
 from startmicro.conf.app.utils import logger, response, utils_init
-from startmicro.core.utils.questions import prompt, style, questions
+from startmicro.core.utils.questions import prompt, style, questions, redis_questions
 from startmicro.core.utils.detect import os_type
 
 
@@ -33,13 +34,13 @@ class Command(object):
         self.utils_path = "{}{}utils".format(self.app, self.slash)
         self.instance = "{}instance".format(self.path)
         self.config = "{}config".format(self.path)
+        self.development = "{}_development".format(self.path)
         self.answer = None
 
     def run(self):
         self.create_folder()  # Create application Folder
         # First Create virtualenv folder
         answers = prompt(questions, style=style)
-        print("ANSWERS: ===> ", answers)
         self.answer = answers
         self.create_virtualenv()
         self.main_structure()
@@ -53,21 +54,31 @@ class Command(object):
         self.write_file(self.folder_name, "docker-compose.yml", docker_compose)
         self.write_file(self.folder_name, "Dockerfile", Dockerfile)
         self.write_file(self.folder_name, "README.md", readme)
-        if answers.get("type") == "Restful" or not answers:
+        if answers.get("type") == "Restful" and not answers:
             self.write_file(self.api_path, "producer.py", producer_restful)
             self.write_file(self.folder_name, "run.py", run_restful)
         elif answers.get("type") == "Redis pubsub":
+            ask_redis = prompt(redis_questions, style=style)
             self.write_file(self.api_path, "producer.py", producer_redis)
             self.write_file(self.folder_name, "run.py", run_redis_pubsub)
             self.write_file(self.folder_name, "redis_client.py", redis_client)
-            self.add_env(redis_credentials)
+            self.add_env(redis_credentials.format(ask_redis.get("redis_pass", "test")))
             self.update_file(self.folder_name, "requirements.txt", redis_required)
+            # dockerizing
+            os.makedirs(self.development)
+            self.write_file(self.development, "redis.dockerfile",
+                            redis_dockerfile.format(ask_redis.get("redis_pass", "test")))
+            self.write_file(self.development, "docker-compose.yml", redis_docker_compose)
         elif answers.get("type") == "Rabbitmq RPC":
             self.write_file(self.api_path, "producer.py", producer_rabbitmq)
             self.write_file(self.folder_name, "run.py", run_rabbitmq)
             self.write_file(self.folder_name, "rabbit_client.py", rabbit_client)
             self.add_env(rabbitmq_credentials)
             self.update_file(self.folder_name, "requirements.txt", rabbit_required)
+            # dockerizing
+            os.makedirs(self.development)
+            self.write_file(self.development, "enabled_plugins", rabbit_enable_plugins)
+            self.write_file(self.development, "docker-compose.yml", rabbit_docker_compose)
 
     def make_env(self):
         self.write_file(self.folder_name, ".env", env)
