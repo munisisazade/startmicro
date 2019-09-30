@@ -54,7 +54,7 @@ class Command(object):
         self.write_file(self.folder_name, "docker-compose.yml", docker_compose)
         self.write_file(self.folder_name, "Dockerfile", Dockerfile)
         self.write_file(self.folder_name, "README.md", readme)
-        if answers.get("type") == "Restful" and not answers:
+        if answers.get("type") == "Restful" or not answers:
             self.write_file(self.api_path, "producer.py", producer_restful)
             self.write_file(self.folder_name, "run.py", run_restful)
         elif answers.get("type") == "Redis pubsub":
